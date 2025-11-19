@@ -1,0 +1,36 @@
+CREATE TABLE expense(
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  amount_cents INTEGER NOT NULL,
+  currency TEXT NOT NULL,
+  category TEXT,
+  notes TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+selectAllExpenses:
+SELECT * FROM expense ORDER BY created_at DESC;
+
+selectExpenseById:
+SELECT * FROM expense WHERE id = ?;
+
+insertExpense:
+INSERT INTO expense(
+  id, title, amount_cents, currency, category, notes, created_at, updated_at
+)
+VALUES (?, ?, ?,  ?, ?, ?, ?, ?);
+
+updateExpense:
+UPDATE expense
+SET
+  title = ?,
+  amount_cents = ?,
+  currency = ?,
+  category = ?,
+  notes = ?,
+  updated_at = ?
+WHERE id = ?;
+
+deleteExpenseById:
+DELETE FROM expense WHERE id = ?;
