@@ -12,6 +12,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.francoherrero.expensetracker.domain.model.Expense
 import com.francoherrero.expensetracker.presentation.state.ExpenseListState
+import com.francoherrero.expensetracker.utils.CurrencyFormatter
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeComponents
+import kotlinx.datetime.format.char
+import org.koin.compose.koinInject
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -66,6 +72,11 @@ private fun ExpenseRow(
     expense: Expense,
     onClick: () -> Unit
 ) {
+    val currencyFormatter = koinInject<CurrencyFormatter>()
+    val formatDate = LocalDate.Format {
+        day(); char('/'); monthNumber(); char('/'); year();
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,11 +106,11 @@ private fun ExpenseRow(
 
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "${expense.money.currency} ${(expense.money.amountCents / 100.0)}",
+                text = currencyFormatter.format(expense.money.amountCents, expense.money.currency),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = expense.createdAt.toString(), // you can pretty-format later
+                text = expense.createdAt.format(DateTimeComponents.Format { date(formatDate) }), // you can pretty-format later
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

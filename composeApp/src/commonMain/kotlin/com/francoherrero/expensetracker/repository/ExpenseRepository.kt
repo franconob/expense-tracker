@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ExpenseRepository {
     fun observeExpense(): Flow<List<Expense>>
-    suspend fun getExpense(id: String): Expense?
+    suspend fun getExpense(id: String): Flow<Expense?>
     suspend fun addExpense(expense: Expense)
     suspend fun updateExpense(expense: Expense)
     suspend fun deleteExpense(id: String)

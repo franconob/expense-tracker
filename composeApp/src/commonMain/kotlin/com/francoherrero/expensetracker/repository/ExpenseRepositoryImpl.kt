@@ -22,8 +22,8 @@ class ExpenseRepositoryImpl(db: ExpenseDatabase): ExpenseRepository {
         queries.selectAllExpenses().asFlow().mapToList(Dispatchers.Default).map { rows -> rows.map { it.toDomain()} }
 
 
-    override suspend fun getExpense(id: String): Expense? =
-        queries.selectExpenseById(id).asFlow().mapToOneOrNull(Dispatchers.Default).map { it?.toDomain() }.firstOrNull()
+    override suspend fun getExpense(id: String): Flow<Expense?> =
+        queries.selectExpenseById(id).asFlow().mapToOneOrNull(Dispatchers.Default).map { it?.toDomain() }
 
 
     override suspend fun addExpense(expense: Expense) {

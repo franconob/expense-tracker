@@ -4,9 +4,12 @@ import app.cash.sqldelight.db.SqlDriver
 import com.francoherrero.expensetracker.data.db.DatabaseDriverFactory
 import com.francoherrero.expensetracker.db.ExpenseDatabase
 import com.francoherrero.expensetracker.presentation.viewmodel.AddExpenseViewModel
+import com.francoherrero.expensetracker.presentation.viewmodel.ExpenseDetailViewModel
 import com.francoherrero.expensetracker.presentation.viewmodel.ExpenseListViewModel
 import com.francoherrero.expensetracker.repository.ExpenseRepository
 import com.francoherrero.expensetracker.repository.ExpenseRepositoryImpl
+import com.francoherrero.expensetracker.utils.CurrencyFormatter
+import com.francoherrero.expensetracker.utils.CurrencyFormatterImpl
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -26,11 +29,16 @@ fun initKoin(databaseDriverFactory: DatabaseDriverFactory): KoinApplication {
             val db: ExpenseDatabase = get()
             ExpenseRepositoryImpl(db)
         }
+
+        single<CurrencyFormatter> {
+            CurrencyFormatterImpl()
+        }
     }
 
     val presentationModule = module {
         single<ExpenseListViewModel> { ExpenseListViewModel(get()) }
         single<AddExpenseViewModel> { AddExpenseViewModel(get()) }
+        single<ExpenseDetailViewModel> { ExpenseDetailViewModel(get()) }
     }
 
     return startKoin { modules(dataModule, presentationModule)  }

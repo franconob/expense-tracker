@@ -23,15 +23,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.francoherrero.expensetracker.navigation.AddExpenseDestination
+import com.francoherrero.expensetracker.navigation.ExpenseDetailDestination
 import com.francoherrero.expensetracker.navigation.ExpenseListDestination
 import com.francoherrero.expensetracker.presentation.controller.UIEvent
 import com.francoherrero.expensetracker.presentation.controller.UIEventController
 import com.francoherrero.expensetracker.ui.expense.AddExpenseRoute
+import com.francoherrero.expensetracker.ui.expense.ExpenseDetailRoute
 import com.francoherrero.expensetracker.ui.expense.ExpenseListRoute
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.AngleLeft
+import kotlin.math.exp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +48,7 @@ fun App() {
 
             fun handleAddExpenseDone() {
                 uiEvents.showSnackbar("Expense added")
-                navController.navigate(ExpenseListDestination.route)
+                navController.navigate(ExpenseListDestination)
             }
 
             LaunchedEffect(Unit) {
@@ -61,7 +65,7 @@ fun App() {
                 snackbarHost = { SnackbarHost(snackbarHostState)},
                 floatingActionButton = {
                     FloatingActionButton(onClick = {
-                        navController.navigate(AddExpenseDestination.route)
+                        navController.navigate(AddExpenseDestination)
                     }) {
                         Text("+")
                     }
@@ -69,15 +73,16 @@ fun App() {
                 topBar = {
                     val cd by navController.currentBackStackEntryAsState()
                     val title = when (cd?.destination?.route) {
-                        ExpenseListDestination.route -> "Expenses"
-                        AddExpenseDestination.route -> "Add Expense"
+                        "com.francoherrero.expensetracker.navigation.ExpenseListDestination"-> "Expenses"
+                        "com.francoherrero.expensetracker.navigation.AddExpenseDestination"-> "Add Expense"
+                        "com.francoherrero.expensetracker.navigation.ExpenseDetailDestination"-> "Expense details"
                         else -> ""
                     }
 
                     TopAppBar(
                         title = { Text(text = title) },
                         navigationIcon = {
-                            if (cd?.destination?.route != ExpenseListDestination.route) {
+                            if (cd?.destination?.route != "com.francoherrero.expensetracker.navigation.ExpenseListDestination") {
                                 IconButton(onClick = {
                                     navController.popBackStack()
                                 }) {
@@ -97,23 +102,28 @@ fun App() {
 
                     NavHost(
                         navController = navController,
-                        startDestination = ExpenseListDestination.route
+                        startDestination = ExpenseListDestination
                     ) {
-                        composable(route = AddExpenseDestination.route) {
+                        composable<AddExpenseDestination> {
                             AddExpenseRoute(
                                 modifier = Modifier.padding(paddingValues),
                                 onDone = ::handleAddExpenseDone
                             )
                         }
-                        composable(route = ExpenseListDestination.route) {
+                        composable<ExpenseListDestination> {
                             ExpenseListRoute(
                                 onAddClick = {
-                                    navController.navigate(AddExpenseDestination.route)
+                                    navController.navigate(AddExpenseDestination)
                                 },
                                 onExpenseClick = { expenseId ->
-                                    // TODO: navigate to detail screen
+                                    navController.navigate(ExpenseDetailDestination(expenseId))
                                 }
                             )
+                        }
+                        composable<ExpenseDetailDestination> { backstackEntry ->
+                            val route = backstackEntry.toRoute<ExpenseDetailDestination>()
+
+                            ExpenseDetailRoute(expenseId = route.expenseId)
                         }
                     }
                 }
