@@ -33,7 +33,7 @@ fun ExpenseDetailScreen(
     expense: Expense,
     modifier: Modifier = Modifier,
     onEditClick: () -> Unit = {},
-    onDeleteClick: () -> Unit = {}
+    onDeleteClick: (expenseId: String) -> Unit = {}
 ) {
     val currencyFormatter = koinInject<CurrencyFormatter>()
     val formatDate = LocalDate.Format {
@@ -126,7 +126,7 @@ fun ExpenseDetailScreen(
             }
 
             Button(
-                onClick = onDeleteClick,
+                onClick = { onDeleteClick(expense.id) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Delete")

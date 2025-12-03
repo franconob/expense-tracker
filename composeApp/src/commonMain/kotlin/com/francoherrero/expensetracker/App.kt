@@ -51,6 +51,11 @@ fun App() {
                 navController.navigate(ExpenseListDestination)
             }
 
+            fun handleDelete() {
+                uiEvents.showSnackbar("Expense deleted")
+                navController.navigate(ExpenseListDestination)
+            }
+
             LaunchedEffect(Unit) {
                 uiEvents.events.collect { event ->
                     when (event) {
@@ -123,7 +128,7 @@ fun App() {
                         composable<ExpenseDetailDestination> { backstackEntry ->
                             val route = backstackEntry.toRoute<ExpenseDetailDestination>()
 
-                            ExpenseDetailRoute(expenseId = route.expenseId)
+                            ExpenseDetailRoute(expenseId = route.expenseId, onDelete = ::handleDelete)
                         }
                     }
                 }

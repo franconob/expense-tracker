@@ -36,4 +36,10 @@ class ExpenseDetailViewModel(private val expenseRepository: ExpenseRepository) :
                 }
         }
     }
+
+    fun deleteExpense(expenseId: String) {
+        scope.launch {
+            expenseRepository.deleteExpense(expenseId)
+        }
+    }
 }

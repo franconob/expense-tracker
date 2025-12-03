@@ -9,16 +9,22 @@ import org.koin.compose.koinInject
 
 @Composable
 fun ExpenseDetailRoute(
-    expenseId: String
+    expenseId: String,
+    onDelete: () -> Unit
 ) {
     val viewmodel = koinInject<ExpenseDetailViewModel>()
     val uiState by viewmodel.state.collectAsState()
+
+    fun handleDeleteExpense(expenseId: String) {
+        viewmodel.deleteExpense(expenseId)
+        onDelete()
+    }
 
     LaunchedEffect(expenseId) {
         viewmodel.getExpense(expenseId)
     }
 
     uiState.expense?.let {
-        ExpenseDetailScreen(expense = it)
+        ExpenseDetailScreen(expense = it, onDeleteClick = ::handleDeleteExpense )
     }
 }
