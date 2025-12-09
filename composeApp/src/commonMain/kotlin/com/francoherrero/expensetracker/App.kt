@@ -9,6 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -25,11 +26,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.francoherrero.expensetracker.navigation.AddExpenseDestination
+import com.francoherrero.expensetracker.navigation.EditExpenseDestination
 import com.francoherrero.expensetracker.navigation.ExpenseDetailDestination
 import com.francoherrero.expensetracker.navigation.ExpenseListDestination
 import com.francoherrero.expensetracker.presentation.controller.UIEvent
 import com.francoherrero.expensetracker.presentation.controller.UIEventController
 import com.francoherrero.expensetracker.ui.expense.AddExpenseRoute
+import com.francoherrero.expensetracker.ui.expense.EditExpenseRoute
 import com.francoherrero.expensetracker.ui.expense.ExpenseDetailRoute
 import com.francoherrero.expensetracker.ui.expense.ExpenseListRoute
 import compose.icons.FontAwesomeIcons
@@ -56,11 +59,20 @@ fun App() {
                 navController.navigate(ExpenseListDestination)
             }
 
+            fun handleOnEditExpense(expenseId: String) {
+                navController.navigate(EditExpenseDestination(expenseId))
+            }
+
+            fun handleOnEditSaveExpense() {
+                uiEvents.showSnackbar("Expense updated")
+                navController.navigate(ExpenseListDestination)
+            }
+
             LaunchedEffect(Unit) {
                 uiEvents.events.collect { event ->
                     when (event) {
                         is UIEvent.ShowSnackbar -> {
-                            snackbarHostState.showSnackbar(event.message)
+                            snackbarHostState.showSnackbar(event.message, duration = SnackbarDuration.Short)
                         }
                     }
                 }
@@ -81,6 +93,7 @@ fun App() {
                         "com.francoherrero.expensetracker.navigation.ExpenseListDestination"-> "Expenses"
                         "com.francoherrero.expensetracker.navigation.AddExpenseDestination"-> "Add Expense"
                         "com.francoherrero.expensetracker.navigation.ExpenseDetailDestination"-> "Expense details"
+                        "com.francoherrero.expensetracker.navigation.EditExpenseDestination"-> "Edit expense"
                         else -> ""
                     }
 
@@ -128,7 +141,16 @@ fun App() {
                         composable<ExpenseDetailDestination> { backstackEntry ->
                             val route = backstackEntry.toRoute<ExpenseDetailDestination>()
 
-                            ExpenseDetailRoute(expenseId = route.expenseId, onDelete = ::handleDelete)
+                            ExpenseDetailRoute(expenseId = route.expenseId, onDelete = ::handleDelete, onEdit = ::handleOnEditExpense)
+                        }
+                        composable<EditExpenseDestination> { backStackEntry ->
+                            val route = backStackEntry.toRoute<EditExpenseDestination>()
+
+                            EditExpenseRoute(
+                                onSave = ::handleOnEditSaveExpense,
+                                expenseId = route.expenseId,
+                                onCancel = {}
+                            )
                         }
                     }
                 }

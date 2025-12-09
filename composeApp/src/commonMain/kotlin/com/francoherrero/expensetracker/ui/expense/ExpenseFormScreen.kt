@@ -6,21 +6,18 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.francoherrero.expensetracker.presentation.controller.UIEventController
-import com.francoherrero.expensetracker.presentation.state.AddExpenseState
+import com.francoherrero.expensetracker.presentation.state.ExpenseFormState
 
 @Composable
-fun AddExpenseScreen(
+fun ExpenseFormScreen(
     modifier: Modifier,
-    state: AddExpenseState,
+    state: ExpenseFormState,
     onTitleChange: (String) -> Unit,
     onAmountChange: (String) -> Unit,
     onCurrencyChange: (String) -> Unit,

@@ -2,13 +2,14 @@ package com.francoherrero.expensetracker.presentation.viewmodel
 
 import com.francoherrero.expensetracker.domain.model.Expense
 import com.francoherrero.expensetracker.domain.model.Money
-import com.francoherrero.expensetracker.presentation.state.AddExpenseState
+import com.francoherrero.expensetracker.presentation.state.ExpenseFormState
 import com.francoherrero.expensetracker.repository.ExpenseRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -25,11 +26,11 @@ class AddExpenseViewModel(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val _state = MutableStateFlow(
-        AddExpenseState(
+        ExpenseFormState(
             createdAt = kotlin.time.Clock.System.now()
         )
     )
-    val state: StateFlow<AddExpenseState> = _state
+    val state: StateFlow<ExpenseFormState> = _state
 
     fun onTitleChange(value: String) {
         _state.value = _state.value.copy(title = value, error = null, saved = false)
@@ -51,6 +52,24 @@ class AddExpenseViewModel(
         _state.value = _state.value.copy(notes = value, error = null, saved = false)
     }
 
+    fun loadExpenseById(expenseId: String) {
+        scope.launch {
+            val expense = repo.getExpense(expenseId).firstOrNull()
+            if (expense != null) {
+                _state.value = _state.value.copy(
+                    existingExpenseId = expenseId,
+                    title = expense.title,
+                    amountInput = (expense.money.amountCents / 100.0).toString(),
+                    currency = expense.money.currency,
+                    category = expense.category ?: "",
+                    notes = expense.notes ?: "",
+                    createdAt = expense.createdAt,
+                    updatedAt = kotlin.time.Clock.System.now()
+                )
+            }
+        }
+    }
+
     @OptIn(ExperimentalUuidApi::class)
     fun onSaveClick() {
         val current = _state.value
@@ -66,9 +85,12 @@ class AddExpenseViewModel(
             return
         }
 
+        val expenseId = current.existingExpenseId ?: Uuid.random().toString()
+        val isEditMode = !current.existingExpenseId.isNullOrEmpty()
+
         val now: kotlin.time.Instant = kotlin.time.Clock.System.now()
         val expense = Expense(
-            id = Uuid.random().toString(),
+            id = expenseId,
             title = current.title.trim(),
             money = Money(
                 amountCents = amountCents,
@@ -76,7 +98,7 @@ class AddExpenseViewModel(
             ),
             category = current.category.ifBlank { null },
             notes = current.notes.ifBlank { null },
-            createdAt = now,
+            createdAt = if(isEditMode) current.createdAt else now,
             updatedAt = now
         )
 
@@ -84,7 +106,12 @@ class AddExpenseViewModel(
 
         scope.launch {
             try {
-                repo.addExpense(expense)
+                if(isEditMode) {
+                    repo.updateExpense(expense)
+                } else {
+                    repo.addExpense(expense)
+                }
+
                 _state.value = _state.value.copy(
                     isSaving = false,
                     saved = true

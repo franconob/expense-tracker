@@ -42,7 +42,15 @@ class ExpenseRepositoryImpl(db: ExpenseDatabase): ExpenseRepository {
     }
 
     override suspend fun updateExpense(expense: Expense) {
-        TODO("Not yet implemented")
+        queries.updateExpense(
+            id = expense.id,
+            title = expense.title,
+            amount_cents = expense.money.amountCents,
+            currency = expense.money.currency,
+            category = expense.category,
+            notes = expense.notes,
+            updated_at = expense.updatedAt.toString(),
+        )
     }
 
     override suspend fun deleteExpense(id: String) {

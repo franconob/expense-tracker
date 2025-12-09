@@ -24,7 +24,7 @@ fun AddExpenseRoute(
         }
     }
 
-    AddExpenseScreen(
+    ExpenseFormScreen(
         modifier,
         state = state,
         onTitleChange = viewModel::onTitleChange,

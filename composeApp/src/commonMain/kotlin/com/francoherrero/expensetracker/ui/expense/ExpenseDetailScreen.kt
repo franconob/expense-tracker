@@ -32,7 +32,7 @@ import kotlin.time.ExperimentalTime
 fun ExpenseDetailScreen(
     expense: Expense,
     modifier: Modifier = Modifier,
-    onEditClick: () -> Unit = {},
+    onEditClick: (expenseId: String) -> Unit = {},
     onDeleteClick: (expenseId: String) -> Unit = {}
 ) {
     val currencyFormatter = koinInject<CurrencyFormatter>()
@@ -119,7 +119,7 @@ fun ExpenseDetailScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
-                onClick = onEditClick,
+                onClick = { onEditClick(expense.id) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Edit")
